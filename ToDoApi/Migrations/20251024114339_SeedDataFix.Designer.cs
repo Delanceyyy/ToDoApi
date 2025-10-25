@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToDoApi.Models;
 
@@ -10,9 +11,11 @@ using ToDoApi.Models;
 namespace ToDoApi.Migrations
 {
     [DbContext(typeof(TodoContext))]
-    partial class TodoContextModelSnapshot : ModelSnapshot
+    [Migration("20251024114339_SeedDataFix")]
+    partial class SeedDataFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,12 +45,6 @@ namespace ToDoApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            IsComplete = false,
-                            Title = "1"
-                        },
-                        new
-                        {
                             Id = 2,
                             IsComplete = false,
                             Title = "Learn EF Core"
@@ -62,7 +59,7 @@ namespace ToDoApi.Migrations
                         {
                             Id = 4,
                             IsComplete = false,
-                            Title = "4"
+                            Title = "Test Mock Data"
                         });
                 });
 #pragma warning restore 612, 618
