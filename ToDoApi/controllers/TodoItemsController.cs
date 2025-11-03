@@ -8,9 +8,9 @@ namespace ToDoApi.Controllers
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
-        private readonly TodoService _service;
+        private readonly ITodoService _service;
 
-        public TodoItemsController(TodoService service)
+        public TodoItemsController(ITodoService service)
         {
             _service = service;
         }
@@ -28,15 +28,17 @@ namespace ToDoApi.Controllers
             return item == null ? NotFound() : Ok(item);
         }
 
+        // ✅ Create uses CreateTodoDto
         [HttpPost]
-        public async Task<IActionResult> Post(TodoItemDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateTodoDto dto)
         {
             var item = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
         }
 
+        // ✅ Update uses UpdateTodoDto
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, TodoItemDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateTodoDto dto)
         {
             var ok = await _service.UpdateAsync(id, dto);
             return ok ? NoContent() : NotFound();

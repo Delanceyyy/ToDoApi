@@ -4,7 +4,7 @@ using ToDoApi.Models;
 
 namespace ToDoApi.Services
 {
-    public class TodoService
+    public class TodoService : ITodoService
     {
         private readonly TodoContext _context;
 
@@ -13,22 +13,42 @@ namespace ToDoApi.Services
             _context = context;
         }
 
-        public async Task<List<TodoItem>> GetAllAsync()
+        public async Task<IEnumerable<TodoItemDto>> GetAllAsync()
         {
-            return await _context.TodoItems.ToListAsync();
+            return await _context.TodoItems
+                .Include(t => t.Category)
+                .Select(t => new TodoItemDto
+                {
+                    Title = t.Title,
+                    IsComplete = t.IsComplete,
+                    CategoryName = t.Category != null ? t.Category.Name : null,
+                    CategoryColor = t.Category != null ? t.Category.Color : null
+                })
+                .ToListAsync();
         }
 
-        public async Task<TodoItem?> GetByIdAsync(int id)
+        public async Task<TodoItemDto?> GetByIdAsync(int id)
         {
-            return await _context.TodoItems.FindAsync(id);
+            return await _context.TodoItems
+                .Include(t => t.Category)
+                .Where(t => t.Id == id)
+                .Select(t => new TodoItemDto
+                {
+                    Title = t.Title,
+                    IsComplete = t.IsComplete,
+                    CategoryName = t.Category != null ? t.Category.Name : null,
+                    CategoryColor = t.Category != null ? t.Category.Color : null
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<TodoItem> CreateAsync(TodoItemDto dto)
+        public async Task<TodoItem> CreateAsync(CreateTodoDto dto)
         {
             var item = new TodoItem
             {
                 Title = dto.Title,
-                IsComplete = dto.IsComplete
+                IsComplete = dto.IsComplete,
+                CategoryId = dto.CategoryId
             };
 
             _context.TodoItems.Add(item);
@@ -37,7 +57,7 @@ namespace ToDoApi.Services
             return item;
         }
 
-        public async Task<bool> UpdateAsync(int id, TodoItemDto dto)
+        public async Task<bool> UpdateAsync(int id, UpdateTodoDto dto)
         {
             var existing = await _context.TodoItems.FindAsync(id);
 
@@ -46,6 +66,7 @@ namespace ToDoApi.Services
 
             existing.Title = dto.Title;
             existing.IsComplete = dto.IsComplete;
+            existing.CategoryId = dto.CategoryId; 
 
             await _context.SaveChangesAsync();
             return true;
