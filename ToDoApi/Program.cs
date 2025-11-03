@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using ToDoApi.Models;
+using ToDoApi;
+using ToDoApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<TodoService>();
 
 // ✅ 1. 注册 EF Core DbContext
 builder.Services.AddDbContext<TodoContext>(options =>
