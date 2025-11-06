@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ToDoApi;
-using ToDoApi.Services;
+using ToDoApi.Application.Queries.Todo.GetTodos;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<TodoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ✅ 注入 Service
-builder.Services.AddScoped<ITodoService, TodoService>();
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(GetTodosQuery).Assembly));
+
 
 // ✅ 注册控制器
 builder.Services.AddControllers();

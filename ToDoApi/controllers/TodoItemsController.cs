@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using ToDoApi.Services;
+using MediatR;
+using ToDoApi.Application.Commands.AddTodo;
 using ToDoApi.Models;
+using ToDoApi.Application.Queries.Todo.GetTodos;
+using ToDoApi.Application.Commands.DeleteTodo;
+using ToDoApi.Application.Commands.UpdateTodo;
 
 namespace ToDoApi.Controllers
 {
@@ -8,47 +12,54 @@ namespace ToDoApi.Controllers
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
-        private readonly ITodoService _service;
+        //private readonly ITodoService _service;
+        private readonly IMediator _mediator;
 
-        public TodoItemsController(ITodoService service)
+        public TodoItemsController(IMediator mediator)
         {
-            _service = service;
+            //_service = service;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _service.GetAllAsync());
+            var todos = await _mediator.Send(new GetTodosQuery());
+            return Ok(todos);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var item = await _service.GetByIdAsync(id);
-            return item == null ? NotFound() : Ok(item);
+            var result = await _mediator.Send(new GetTodoByIdQuery(id));
+            return result == null ? NotFound() : Ok(result);
         }
 
-        // ✅ Create uses CreateTodoDto
+
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateTodoDto dto)
+        public async Task<IActionResult> Post([FromBody] AddTodoCommand command)
         {
-            var item = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(Get), new { id = item.Id }, item);
+            var id = await _mediator.Send(command);
+            return CreatedAtAction(nameof(Get), new { id }, id);
         }
 
-        // ✅ Update uses UpdateTodoDto
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateTodoDto dto)
         {
-            var ok = await _service.UpdateAsync(id, dto);
+            var command = new UpdateTodoCommand(id, dto.Title, dto.IsComplete, dto.CategoryId);
+
+            var ok = await _mediator.Send(command);
             return ok ? NoContent() : NotFound();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var ok = await _service.DeleteAsync(id);
-            return ok ? NoContent() : NotFound();
+            var success = await _mediator.Send(new DeleteTodoCommand(id));
+            return success ? NoContent() : NotFound();
         }
+
     }
 }
