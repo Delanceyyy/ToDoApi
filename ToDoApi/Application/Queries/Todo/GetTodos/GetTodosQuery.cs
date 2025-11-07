@@ -22,12 +22,12 @@ namespace ToDoApi.Application.Queries.Todo.GetTodos
             return await _db.TodoItems
                 .Select(x => new TodoItemDto
                 {
-                    //Id = x.Id,
+                    Id = x.Id,
                     Title = x.Title,
                     IsComplete = x.IsComplete,
                     CategoryName = x.Category.Name,
-                    CategoryColor = x.Category.Color
-                    //CategoryId = x.CategoryId
+                    CategoryColor = x.Category.Color,
+                    CategoryId = x.CategoryId
                 })
                 .ToListAsync(cancellationToken);
         }
