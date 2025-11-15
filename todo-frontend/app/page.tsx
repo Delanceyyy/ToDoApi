@@ -1,4 +1,4 @@
-// app/page.tsx (Next.js 13+ with App Router)
+import TodoPageClient from "./TodoPageClient";
 
 export default async function Home() {
   const res = await fetch("http://localhost:5175/api/todoitems", {
@@ -7,19 +7,5 @@ export default async function Home() {
 
   const todos = await res.json();
 
-  return (
-    <main style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <h1>✅ Todo List from .NET API</h1>
-
-      <ul>
-        {todos.map((t: any) => (
-          <li key={t.id}>
-            {t.title} — {t.isComplete ? "✅ Done" : "⌛ Pending"}
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
+  return <TodoPageClient initialTodos={todos} />;
 }
-
-
